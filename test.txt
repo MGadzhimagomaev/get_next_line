@@ -1,0 +1,4 @@
+This is line 1
+This is the next line
+\r \t another line \t
+Okay, last line!1!!1!
