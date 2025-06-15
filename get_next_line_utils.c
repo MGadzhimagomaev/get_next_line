@@ -6,30 +6,27 @@
 /*   By: mgadzhim <mgadzhim@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/09 16:13:54 by mgadzhim          #+#    #+#             */
-/*   Updated: 2025/06/14 20:16:02 by mgadzhim         ###   ########.fr       */
+/*   Updated: 2025/06/15 19:03:14 by mgadzhim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-void	ft_bzero(void *s, size_t n)
-{
-	while (n > 0)
-	{
-		((unsigned char *)s)[--n] = '\0';
-	}
-}
-
 void	*ft_calloc(size_t nmemb, size_t size)
 {
 	void	*output;
+	int		n;
 
 	if (size != 0 && nmemb != 0 && nmemb > SIZE_MAX / size)
 		return (NULL);
-	output = (void *)malloc(nmemb * size);
+	n = nmemb * size;
+	output = (void *)malloc(n);
 	if (!output)
 		return (NULL);
-	ft_bzero(output, nmemb * size);
+	while (n > 0)
+	{
+		((unsigned char *)output)[--n] = '\0';
+	}
 	return (output);
 }
 
