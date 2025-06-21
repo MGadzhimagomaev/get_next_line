@@ -6,7 +6,7 @@
 /*   By: mgadzhim <mgadzhim@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/09 16:13:54 by mgadzhim          #+#    #+#             */
-/*   Updated: 2025/06/15 19:03:14 by mgadzhim         ###   ########.fr       */
+/*   Updated: 2025/06/21 16:46:44 by mgadzhim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ size_t	ft_strlen(const char *s)
 		i++;
 		s++;
 	}
-	return (sizeof(char) * i);
+	return (i);
 }
 
 size_t	ft_strlcpy(char *dest, const char *src, size_t size)

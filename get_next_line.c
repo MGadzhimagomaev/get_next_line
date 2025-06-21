@@ -6,71 +6,91 @@
 /*   By: mgadzhim <mgadzhim@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/09 16:13:33 by mgadzhim          #+#    #+#             */
-/*   Updated: 2025/06/15 19:42:29 by mgadzhim         ###   ########.fr       */
+/*   Updated: 2025/06/21 17:35:53 by mgadzhim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
+static char	*extract_line(char *buf, int fd, char *stash);
+static char	*split_leftover(char	*line);
+static char	*ft_substr(char const *s, unsigned int start, size_t len);
+static char	*ft_strchr(const char *s, int c);
+
 char	*get_next_line(int fd)
 {
-	char	*buf;
+	char		*buf;
+	char		*line;
+	static char	*stash;
 
 	buf = (char *)ft_calloc(BUFFER_SIZE + 1, sizeof(char));
+	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
+	{
+		free(stash);
+		free(buf);
+		stash = NULL;
+		buf = NULL;
+		return (NULL);
+	}
 	if (!buf)
 		return (NULL);
-	return (append_to_stash(buf, fd));
+	line = extract_line(buf, fd, stash);
+	free (buf);
+	buf = NULL;
+	if (!line)
+		return (NULL);
+	stash = split_leftover(line);
+	return (line);
 }
 
-char	*append_to_stash(char *buf, int fd)
+static char	*extract_line(char *buf, int fd, char *stash)
 {
-	static char	*stash;
-	char		*temp;
-	char		*leftover;
-	int			bytes_read;
+	char	*temp;
+	int	bytes_read;
 
 	bytes_read = 1;
-	if (!stash)
+	while (bytes_read > 0)
 	{
 		bytes_read = read(fd, buf, BUFFER_SIZE);
-		if (bytes_read < 1)
+		if (bytes_read < 0)
 		{
-			free (buf);
-			free (stash);
+			free(stash);
 			return (NULL);
 		}
-		stash = ft_strdup(buf);
-	}
-	leftover = ft_strchr(stash, '\n');
-	while (!(leftover) && bytes_read != 0)
-	{
+		if (bytes_read == 0)
+			break ;
+		buf[bytes_read] = '\0';
 		temp = stash;
-		bytes_read = read(fd, buf, BUFFER_SIZE);
-		if ((bytes_read == 0 && !stash) || bytes_read == -1)
-		{
-			free (buf);
-			free (stash);
-			return (NULL);
-		}
 		stash = ft_strjoin(temp, buf);
-		// free (temp);
-		leftover = ft_strchr(stash, '\n');
+		free(temp);
+		temp = NULL;
+		if (ft_strchr(stash, '\n'))
+			break ;
 	}
-	if (!(leftover))
-	{
-		temp = ft_strdup(stash);
-		free (stash);
-		stash = NULL;
-		free (buf);
-		return (temp);
-	}
-	temp = ft_substr(stash, 0, ft_strlen(stash) - ft_strlen(leftover) + 1);
-	free (stash);
-	stash = ft_strdup(leftover + 1);
-	return (temp);
+	return (stash);
 }
 
-char	*ft_substr(char const *s, unsigned int start, size_t len)
+static char	*split_leftover(char	*line)
+{
+	char	*stash;
+	size_t		i;
+
+	i = 0;
+	while (!(line[i] == '\0' || line[i] == '\n'))
+		i++;
+	if (line[i] == '\0' || line[1] == '\0')
+		return (NULL);
+	stash = ft_substr(line, i + 1, ft_strlen(line) - i);
+	if (*stash == '\0')
+	{
+		free(stash);
+		stash = NULL;
+	}
+	line [i + 1] = '\0';
+	return (stash);
+}
+
+static char	*ft_substr(char const *s, unsigned int start, size_t len)
 {
 	char	*output;
 	size_t	s_len;
@@ -91,7 +111,7 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 	return (output);
 }
 
-char	*ft_strchr(const char *s, int c)
+static char	*ft_strchr(const char *s, int c)
 {
 	while (*s)
 	{
