@@ -6,7 +6,7 @@
 /*   By: mgadzhim <mgadzhim@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/09 16:13:54 by mgadzhim          #+#    #+#             */
-/*   Updated: 2025/06/21 16:46:44 by mgadzhim         ###   ########.fr       */
+/*   Updated: 2025/06/29 16:51:04 by mgadzhim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,8 @@ size_t	ft_strlen(const char *s)
 	int	i;
 
 	i = 0;
+	if (!s)
+		return (i);
 	while (*s)
 	{
 		i++;
@@ -89,7 +91,9 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	output = (char *)ft_calloc(len_pre + len_suff + 1, sizeof(char));
 	if (!output)
 		return (NULL);
-	ft_strlcpy(output, s1, len_pre + 1);
-	ft_strlcpy(output + len_pre, s2, len_suff + 1);
+	if (s1)
+		ft_strlcpy(output, s1, len_pre + 1);
+	if (s2)
+		ft_strlcpy(output + len_pre, s2, len_suff + 1);
 	return (output);
 }

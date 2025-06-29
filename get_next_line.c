@@ -6,14 +6,14 @@
 /*   By: mgadzhim <mgadzhim@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/09 16:13:33 by mgadzhim          #+#    #+#             */
-/*   Updated: 2025/06/21 17:35:53 by mgadzhim         ###   ########.fr       */
+/*   Updated: 2025/06/29 18:27:06 by mgadzhim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
 static char	*extract_line(char *buf, int fd, char *stash);
-static char	*split_leftover(char	*line);
+static char	*split_leftover(char	*line, char *stash);
 static char	*ft_substr(char const *s, unsigned int start, size_t len);
 static char	*ft_strchr(const char *s, int c);
 
@@ -23,30 +23,25 @@ char	*get_next_line(int fd)
 	char		*line;
 	static char	*stash;
 
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (0);
 	buf = (char *)ft_calloc(BUFFER_SIZE + 1, sizeof(char));
-	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
-	{
-		free(stash);
-		free(buf);
-		stash = NULL;
-		buf = NULL;
-		return (NULL);
-	}
 	if (!buf)
 		return (NULL);
-	line = extract_line(buf, fd, stash);
+	stash = extract_line(buf, fd, stash);
 	free (buf);
 	buf = NULL;
+	line = stash;
 	if (!line)
 		return (NULL);
-	stash = split_leftover(line);
+	stash = split_leftover(line, stash);
 	return (line);
 }
 
 static char	*extract_line(char *buf, int fd, char *stash)
 {
 	char	*temp;
-	int	bytes_read;
+	int		bytes_read;
 
 	bytes_read = 1;
 	while (bytes_read > 0)
@@ -70,23 +65,23 @@ static char	*extract_line(char *buf, int fd, char *stash)
 	return (stash);
 }
 
-static char	*split_leftover(char	*line)
+static char	*split_leftover(char *line, char *stash)
 {
-	char	*stash;
 	size_t		i;
 
 	i = 0;
 	while (!(line[i] == '\0' || line[i] == '\n'))
 		i++;
-	if (line[i] == '\0' || line[1] == '\0')
+	if (line[i] == '\0')
 		return (NULL);
 	stash = ft_substr(line, i + 1, ft_strlen(line) - i);
-	if (*stash == '\0')
+	if (stash && *stash == '\0')
 	{
 		free(stash);
 		stash = NULL;
 	}
-	line [i + 1] = '\0';
+	if (line[i] == '\n')
+		line [i + 1] = '\0';
 	return (stash);
 }
 
