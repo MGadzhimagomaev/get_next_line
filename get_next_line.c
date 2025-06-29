@@ -6,15 +6,15 @@
 /*   By: mgadzhim <mgadzhim@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/09 16:13:33 by mgadzhim          #+#    #+#             */
-/*   Updated: 2025/06/29 18:27:06 by mgadzhim         ###   ########.fr       */
+/*   Updated: 2025/06/29 21:04:16 by mgadzhim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static char	*extract_line(char *buf, int fd, char *stash);
-static char	*split_leftover(char	*line, char *stash);
-static char	*ft_substr(char const *s, unsigned int start, size_t len);
+static char	*read_next(char *buf, int fd, char *stash);
+static char	*extract_leftover(char *stash);
+static char	*extract_line(char *stash);
 static char	*ft_strchr(const char *s, int c);
 
 char	*get_next_line(int fd)
@@ -23,22 +23,24 @@ char	*get_next_line(int fd)
 	char		*line;
 	static char	*stash;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
-		return (0);
-	buf = (char *)ft_calloc(BUFFER_SIZE + 1, sizeof(char));
+	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
+		return (NULL);
+	buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
 	if (!buf)
 		return (NULL);
-	stash = extract_line(buf, fd, stash);
+	stash = read_next(buf, fd, stash);
 	free (buf);
 	buf = NULL;
-	line = stash;
+	if (!stash)
+		return (NULL);
+	line = extract_line(stash);
 	if (!line)
 		return (NULL);
-	stash = split_leftover(line, stash);
+	stash = extract_leftover(stash);
 	return (line);
 }
 
-static char	*extract_line(char *buf, int fd, char *stash)
+static char	*read_next(char *buf, int fd, char *stash)
 {
 	char	*temp;
 	int		bytes_read;
@@ -49,7 +51,6 @@ static char	*extract_line(char *buf, int fd, char *stash)
 		bytes_read = read(fd, buf, BUFFER_SIZE);
 		if (bytes_read < 0)
 		{
-			free(stash);
 			return (NULL);
 		}
 		if (bytes_read == 0)
@@ -58,6 +59,8 @@ static char	*extract_line(char *buf, int fd, char *stash)
 		temp = stash;
 		stash = ft_strjoin(temp, buf);
 		free(temp);
+		if (!stash)
+			return (NULL);
 		temp = NULL;
 		if (ft_strchr(stash, '\n'))
 			break ;
@@ -65,45 +68,46 @@ static char	*extract_line(char *buf, int fd, char *stash)
 	return (stash);
 }
 
-static char	*split_leftover(char *line, char *stash)
+static char	*extract_line(char *stash)
 {
 	size_t		i;
+	char		*line;
 
 	i = 0;
-	while (!(line[i] == '\0' || line[i] == '\n'))
-		i++;
-	if (line[i] == '\0')
+	if (!stash || *stash == '\0')
 		return (NULL);
-	stash = ft_substr(line, i + 1, ft_strlen(line) - i);
-	if (stash && *stash == '\0')
+	if (!(ft_strchr(stash, '\n')))
+		return (ft_strdup(stash));
+	while (stash[i] && stash[i] != '\n')
+		i++;
+	line = ft_substr(stash, 0, i + 1);
+	if (line && *line == '\0')
 	{
-		free(stash);
-		stash = NULL;
+		free(line);
+		line = NULL;
 	}
-	if (line[i] == '\n')
-		line [i + 1] = '\0';
-	return (stash);
+	return (line);
 }
 
-static char	*ft_substr(char const *s, unsigned int start, size_t len)
+static char	*extract_leftover(char *stash)
 {
-	char	*output;
-	size_t	s_len;
+	size_t		i;
+	char		*new_stash;
 
-	s_len = ft_strlen(s);
-	if (start >= s_len)
-		return (ft_strdup(""));
-	if (s_len - start < len)
-		len = s_len - start;
-	output = (char *)ft_calloc(len + 1, sizeof(char));
-	if (!output)
+	i = 0;
+	if (!stash || *stash == '\0')
 		return (NULL);
-	output[len] = '\0';
-	while (len--)
+	while (stash[i] && stash[i] != '\n')
+		i++;
+	new_stash = ft_substr(stash, i + 1, ft_strlen(stash) - i - 1);
+	free (stash);
+	stash = NULL;
+	if (new_stash && *new_stash == '\0')
 	{
-		((char *)output)[len] = ((char *)s)[start + len];
+		free (new_stash);
+		new_stash = NULL;
 	}
-	return (output);
+	return (new_stash);
 }
 
 static char	*ft_strchr(const char *s, int c)
@@ -118,6 +122,7 @@ static char	*ft_strchr(const char *s, int c)
 		return ((char *)s);
 	return (NULL);
 }
+
 /*
 int	main(void)
 {

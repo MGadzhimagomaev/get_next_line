@@ -6,29 +6,11 @@
 /*   By: mgadzhim <mgadzhim@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/09 16:13:54 by mgadzhim          #+#    #+#             */
-/*   Updated: 2025/06/29 16:51:04 by mgadzhim         ###   ########.fr       */
+/*   Updated: 2025/06/29 19:40:00 by mgadzhim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-
-void	*ft_calloc(size_t nmemb, size_t size)
-{
-	void	*output;
-	int		n;
-
-	if (size != 0 && nmemb != 0 && nmemb > SIZE_MAX / size)
-		return (NULL);
-	n = nmemb * size;
-	output = (void *)malloc(n);
-	if (!output)
-		return (NULL);
-	while (n > 0)
-	{
-		((unsigned char *)output)[--n] = '\0';
-	}
-	return (output);
-}
 
 size_t	ft_strlen(const char *s)
 {
@@ -88,12 +70,33 @@ char	*ft_strjoin(char const *s1, char const *s2)
 
 	len_pre = ft_strlen(s1);
 	len_suff = ft_strlen(s2);
-	output = (char *)ft_calloc(len_pre + len_suff + 1, sizeof(char));
+	output = (char *)malloc((len_pre + len_suff + 1) * sizeof(char));
 	if (!output)
 		return (NULL);
 	if (s1)
 		ft_strlcpy(output, s1, len_pre + 1);
 	if (s2)
 		ft_strlcpy(output + len_pre, s2, len_suff + 1);
+	return (output);
+}
+
+char	*ft_substr(char const *s, unsigned int start, size_t len)
+{
+	char	*output;
+	size_t	s_len;
+
+	s_len = ft_strlen(s);
+	if (start >= s_len)
+		return (ft_strdup(""));
+	if (s_len - start < len)
+		len = s_len - start;
+	output = (char *)malloc((len + 1) * sizeof(char));
+	if (!output)
+		return (NULL);
+	output[len] = '\0';
+	while (len--)
+	{
+		((char *)output)[len] = ((char *)s)[start + len];
+	}
 	return (output);
 }
