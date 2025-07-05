@@ -6,65 +6,57 @@
 /*   By: mgadzhim <mgadzhim@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/09 16:13:33 by mgadzhim          #+#    #+#             */
-/*   Updated: 2025/06/29 21:04:16 by mgadzhim         ###   ########.fr       */
+/*   Updated: 2025/07/05 19:26:18 by mgadzhim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static char	*read_next(char *buf, int fd, char *stash);
+static char	*read_next(int fd, char *stash);
 static char	*extract_leftover(char *stash);
 static char	*extract_line(char *stash);
-static char	*ft_strchr(const char *s, int c);
+static char	*ft_strchr(char *s, int c);
 
 char	*get_next_line(int fd)
 {
-	char		*buf;
 	char		*line;
 	static char	*stash;
 
 	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
-		return (NULL);
-	buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
-	if (!buf)
-		return (NULL);
-	stash = read_next(buf, fd, stash);
-	free (buf);
-	buf = NULL;
+		return (free(stash), stash = NULL, NULL);
+	stash = read_next(fd, stash);
 	if (!stash)
 		return (NULL);
 	line = extract_line(stash);
-	if (!line)
-		return (NULL);
 	stash = extract_leftover(stash);
 	return (line);
 }
 
-static char	*read_next(char *buf, int fd, char *stash)
+static char	*read_next(int fd, char *stash)
 {
+	char	*buf;
 	char	*temp;
 	int		bytes_read;
 
 	bytes_read = 1;
+	buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (!buf)
+		return (NULL);
 	while (bytes_read > 0)
 	{
 		bytes_read = read(fd, buf, BUFFER_SIZE);
 		if (bytes_read < 0)
-		{
-			return (NULL);
-		}
+			return (free (buf), NULL);
 		if (bytes_read == 0)
 			break ;
 		buf[bytes_read] = '\0';
 		temp = stash;
 		stash = ft_strjoin(temp, buf);
 		free(temp);
-		if (!stash)
-			return (NULL);
-		temp = NULL;
-		if (ft_strchr(stash, '\n'))
+		if (ft_strchr(buf, '\n'))
 			break ;
 	}
+	free (buf);
 	return (stash);
 }
 
@@ -74,18 +66,13 @@ static char	*extract_line(char *stash)
 	char		*line;
 
 	i = 0;
-	if (!stash || *stash == '\0')
+	if (!stash || !stash[0])
 		return (NULL);
 	if (!(ft_strchr(stash, '\n')))
 		return (ft_strdup(stash));
 	while (stash[i] && stash[i] != '\n')
 		i++;
 	line = ft_substr(stash, 0, i + 1);
-	if (line && *line == '\0')
-	{
-		free(line);
-		line = NULL;
-	}
 	return (line);
 }
 
@@ -95,23 +82,24 @@ static char	*extract_leftover(char *stash)
 	char		*new_stash;
 
 	i = 0;
-	if (!stash || *stash == '\0')
-		return (NULL);
 	while (stash[i] && stash[i] != '\n')
 		i++;
+	if (!stash[i] || stash[i + 1] == '\0')
+		return (free(stash), NULL);
 	new_stash = ft_substr(stash, i + 1, ft_strlen(stash) - i - 1);
 	free (stash);
-	stash = NULL;
-	if (new_stash && *new_stash == '\0')
+	if (!new_stash || new_stash[0] == '\0')
 	{
-		free (new_stash);
-		new_stash = NULL;
+		return (free (new_stash), NULL);
+		// new_stash = NULL;
 	}
 	return (new_stash);
 }
 
-static char	*ft_strchr(const char *s, int c)
+static char	*ft_strchr(char *s, int c)
 {
+	if (!s)
+		return (NULL);
 	while (*s)
 	{
 		if (*s == (char)c)

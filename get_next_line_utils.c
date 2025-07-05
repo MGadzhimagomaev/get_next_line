@@ -6,7 +6,7 @@
 /*   By: mgadzhim <mgadzhim@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/09 16:13:54 by mgadzhim          #+#    #+#             */
-/*   Updated: 2025/06/29 19:40:00 by mgadzhim         ###   ########.fr       */
+/*   Updated: 2025/07/05 19:23:20 by mgadzhim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,8 @@ size_t	ft_strlcpy(char *dest, const char *src, size_t size)
 	unsigned int	i;
 
 	i = 0;
+	if (!src || !dest)
+		return (0);
 	if (size > 0)
 	{
 		while (src[i] && i < size - 1)
@@ -49,6 +51,8 @@ char	*ft_strdup(const char *s)
 	char	*dest;
 	int		i;
 
+	if (!s)
+		return (NULL);
 	dest = (char *) malloc(sizeof(char) * (ft_strlen(s) + 1));
 	if (!dest)
 		return (NULL);
@@ -72,7 +76,7 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	len_suff = ft_strlen(s2);
 	output = (char *)malloc((len_pre + len_suff + 1) * sizeof(char));
 	if (!output)
-		return (NULL);
+		return(NULL);
 	if (s1)
 		ft_strlcpy(output, s1, len_pre + 1);
 	if (s2)
@@ -85,6 +89,8 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 	char	*output;
 	size_t	s_len;
 
+	if (!s)
+		return (NULL);
 	s_len = ft_strlen(s);
 	if (start >= s_len)
 		return (ft_strdup(""));
