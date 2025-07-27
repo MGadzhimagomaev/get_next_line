@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mgadzhim <mgadzhim@student.42berlin.de>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/09 16:13:33 by mgadzhim          #+#    #+#             */
-/*   Updated: 2025/07/27 16:47:40 by mgadzhim         ###   ########.fr       */
+/*   Updated: 2025/07/27 17:09:25 by mgadzhim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 char	*ft_fill_stash(int fd, char **stash)
 {
@@ -98,21 +98,21 @@ char	*ft_readline(int fd, char **stash)
 
 char	*get_next_line(int fd)
 {
-	static char	*stash;
+	static char	*stash[MAX_FD];
 	char		*line;
 	size_t		len;
 
 	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
-		return (free(stash), stash = NULL, NULL);
-	line = ft_readline(fd, &stash);
+		return (free(stash[fd]), stash[fd] = NULL, NULL);
+	line = ft_readline(fd, &stash[fd]);
 	if (!line)
 		return (NULL);
 	len = 0;
-	while (stash[len] && stash[len] != '\n')
+	while (stash[fd][len] && stash[fd][len] != '\n')
 		len++;
-	if (stash[len] == '\n')
+	if (stash[fd][len] == '\n')
 		len++;
-	ft_update_stash(&stash, len);
+	ft_update_stash(&stash[fd], len);
 	return (line);
 }
 
