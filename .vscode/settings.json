@@ -3,6 +3,9 @@
 		"get_next_line.h": "c",
 		"stdio.h": "c",
 		"unistd.h": "c",
-		"stddef.h": "c"
+		"stddef.h": "c",
+		"stdint.h": "c",
+		"functional": "c",
+		"get_next_line_bonus.h": "c"
 	}
 }
